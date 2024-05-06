@@ -23,11 +23,11 @@ void *Consumer()
         // while producers_turn, wait until buffer is full (until they are done)
         while(producers_turn) pthread_cond_wait(&full, &mutex);
 
-        // consume CHUNK_SIZE elements
+        // consume one CHUNK
         int i = 0;
         while(i++ < CHUNK_SIZE && Buffer_Index_Value > 0) printf("Consumer:%d\n", Buffer_Index_Value--);
         
-        // signal when buffer is empty
+        // signal when buffer is now empty
         if(Buffer_Index_Value == 0) {
             pthread_cond_signal(&empty);
             producers_turn = 1;
@@ -48,14 +48,14 @@ void *Producer()
         // while consumers_turn, wait until buffer is empty (until they are done)        
         while(!producers_turn) pthread_cond_wait(&empty, &mutex);
 
-        // produce CHUNK_SIZE elements
+        // produce one CHUNK
         int i = 0;
         while(i++ < CHUNK_SIZE && Buffer_Index_Value < Buffer_Limit) {
             Buffer_Queue[Buffer_Index_Value++] = '@';
             printf("Producer:%d\n", Buffer_Index_Value);
         }
 
-        // signal when buffer is full
+        // signal if buffer is now full
         if(Buffer_Index_Value == Buffer_Limit) {
             pthread_cond_signal(&full);
             producers_turn = 0;

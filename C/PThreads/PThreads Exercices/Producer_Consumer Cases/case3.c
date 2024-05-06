@@ -22,7 +22,7 @@ void *Consumer()
         // while empty, wait until there is something to consume
         while(Buffer_Index_Value == 0) pthread_cond_wait(&notEmpty, &mutex);
 
-        // consume CHUNK_SIZE elements
+        // consume one CHUNK
         int i = 0;
         while(i++ < CHUNK_SIZE && Buffer_Index_Value > 0) printf("Consumer:%d\n", Buffer_Index_Value--);
         
@@ -44,7 +44,7 @@ void *Producer()
         // while full, wait until there is space to produce
         while(Buffer_Index_Value == Buffer_Limit) pthread_cond_wait(&notFull, &mutex);
 
-        // produce CHUNK_SIZE elements
+        // produce one CHUNK
         int i = 0;
         while(i++ < CHUNK_SIZE && Buffer_Index_Value < Buffer_Limit) {
             Buffer_Queue[Buffer_Index_Value++] = '@';

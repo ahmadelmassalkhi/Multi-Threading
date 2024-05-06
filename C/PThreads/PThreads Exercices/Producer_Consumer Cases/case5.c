@@ -25,19 +25,20 @@ void *Consumer()
             pthread_cond_wait(&full, &mutex);
         }
 
-        // consume CHUNK_SIZE elements
+        // consume one CHUNK
         int i = 0;
         while(i++ < CHUNK_SIZE && Buffer_Index_Value > 0) {
             printf("Consumer:%d\n", Buffer_Index_Value--);
         }
 
-        // signal when buffer is empty
+        // signal if buffer is now empty
         if(Buffer_Index_Value == 0) {
             pthread_cond_signal(&empty);
             producers_turn = 1;
         } else {
             pthread_cond_signal(&full); // wakeup one consumer
-            pthread_cond_wait(&full, &mutex); // wait for another consumer (or a producer) to wake me up
+            pthread_cond_wait(&full, &mutex); // wait for another consumer to wake me up (before consuming all elements)
+                                              // (or a producer after they produced all elements)
         }
 
         // unlock
@@ -55,20 +56,21 @@ void *Producer()
         // while consumers_turn, wait until buffer is empty (until they are done)        
         while(!producers_turn) pthread_cond_wait(&empty, &mutex);
 
-        // produce CHUNK_SIZE elements
+        // produce one CHUNK
         int i = 0;
         while(i++ < CHUNK_SIZE && Buffer_Index_Value < Buffer_Limit) {
             Buffer_Queue[Buffer_Index_Value++] = '@';
             printf("Producer:%d\n", Buffer_Index_Value);
         }
 
-        // signal when buffer is full
+        // signal if buffer is now full
         if(Buffer_Index_Value == Buffer_Limit) {
             pthread_cond_signal(&full);
             producers_turn = 0;
         } else {
             pthread_cond_signal(&empty); // wake one producer
-            pthread_cond_wait(&empty, &mutex); // wait for another producer (or a consumer) to wake me up
+            pthread_cond_wait(&empty, &mutex); // wait for another producer to wake me up (before producing all elements)
+                                               // (or a consumer after they consumed all elements)
         }
 
         // unlock
