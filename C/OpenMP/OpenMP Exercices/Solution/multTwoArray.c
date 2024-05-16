@@ -26,7 +26,8 @@ void print_Matrix_Parallel(int **A, int rows, int cols) {
             for (int j = 0; j < cols; j++) printf("%d ", A[i][j]);
             printf("\n");
         }
-    }
+    } // not ideal for printing the matrix. 
+      // It serializes the printing operation, which defeats the purpose of parallelism
 }
 
 int** define_Matrix_Parallel(int rows, int cols) {

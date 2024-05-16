@@ -13,7 +13,7 @@ double Integral_Parallel(double a, double b, double f(double)) {
 
     double sum = 0;
     #pragma omp parallel for reduction(+ : sum)
-    for(long long i = 1; i <= nbOfRectangles; i++) sum += f(i * dx) * dx;
+    for(long long i = a + 1; i <= nbOfRectangles; i++) sum += f(i * dx) * dx;
 
     return sum;
 }
